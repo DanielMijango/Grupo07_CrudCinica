@@ -23,75 +23,26 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
-
 public class MainActivity extends AppCompatActivity {
-
-    Button btnClinica, btnEspecialidad, btnDoctor, btnPaciente, btnHospitalizacion, btnHospital, btnTratamiento
-            ,btnConsulta;
+    Button btnClinica, btnEspecialidad, btnDoctor, btnPaciente, btnConsulta, btnReceta, btnMedicamento, btnSeguro, btnHospital, btnDetalleReceta;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Inicializar botones
         btnClinica = findViewById(R.id.btnClinica);
         btnEspecialidad = findViewById(R.id.btnEspecialidad);
         btnDoctor = findViewById(R.id.btnDoctor);
         btnPaciente = findViewById(R.id.btnPaciente);
-        btnHospitalizacion = findViewById(R.id.btnHospitalizacion);
-        btnHospital = findViewById(R.id.btnHospital);
-        btnTratamiento = findViewById(R.id.btnTratamiento);
         btnConsulta = findViewById(R.id.btnConsulta);
+        btnReceta = findViewById(R.id.btnReceta);
+        btnMedicamento = findViewById(R.id.btnMedicamento);
+        btnSeguro = findViewById(R.id.btnSeguro);
+        btnHospital = findViewById(R.id.btnHospital);
+        btnDetalleReceta = findViewById(R.id.btnDetalleReceta);
 
-
-        // Ir a la pantalla de Clínica
-        btnClinica.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, ClinicaActivity.class);
-            startActivity(intent);
-        });
-
-
-        // Ir a la pantalla de Especialidad
-        btnEspecialidad.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, EspecialidadActivity.class);
-            startActivity(intent);
-        });
-
-        // Ir a la pantalla de Doctor
-        btnDoctor.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, DoctorActivity.class);
-            startActivity(intent);
-        });
-
-        // Ir a la pantalla de Paciente
-        btnPaciente.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, PacienteActivity.class);
-            startActivity(intent);
-        });
-
-        // Ir a la pantalla de hospitalizacion
-        btnHospitalizacion.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, PacienteActivity.class);
-            startActivity(intent);
-        });
-
-        // Ir a la pantalla de hospital
-        btnHospital.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, PacienteActivity.class);
-            startActivity(intent);
-        });
-
-        // Ir a la pantalla de Tratamiento
-        btnTratamiento.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, PacienteActivity.class);
-            startActivity(intent);
-        });
-        //Ir a la pantalla de Consulta
-        btnConsulta.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, ConsultaActivity.class);
-            startActivity(intent);
-        });
-
+        btnClinica.setOnClickListener(v -> startActivity(new Intent(this, ClinicaMenuActivity.class)));
+        // Los demás aún no están implementados, los agregaremos después
     }
 }

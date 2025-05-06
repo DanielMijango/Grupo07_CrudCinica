@@ -1,32 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:padding="24dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <EditText
-        android:id="@+id/etNombreDoctor"
+        android:id="@+id/edtIdClinica"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Nombre del Doctor" />
+        android:hint="ID Clínica"
+        android:inputType="number" />
 
     <EditText
-        android:id="@+id/etIdEspecialidad"
+        android:id="@+id/edtNombre"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="ID de Especialidad" />
+        android:hint="Nombre Clínica"
+        android:layout_marginTop="10dp" />
+
+    <EditText
+        android:id="@+id/edtDireccion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Dirección"
+        android:layout_marginTop="10dp" />
 
     <Button
         android:id="@+id/btnGuardar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Guardar" />
+        android:text="Guardar Clínica"
+        android:layout_marginTop="20dp" />
 
-    <Button
-        android:id="@+id/btnAtras"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Atrás" />
 </LinearLayout>
