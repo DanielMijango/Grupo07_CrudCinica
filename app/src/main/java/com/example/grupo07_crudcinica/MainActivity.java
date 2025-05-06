@@ -26,7 +26,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button btnClinica, btnEspecialidad, btnDoctor, btnPaciente, btnHospitalizacion, btnHospital, btnTratamiento;
+    Button btnClinica, btnEspecialidad, btnDoctor, btnPaciente, btnHospitalizacion, btnHospital, btnTratamiento
+            ,btnConsulta;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,12 +42,15 @@ public class MainActivity extends AppCompatActivity {
         btnHospitalizacion = findViewById(R.id.btnHospitalizacion);
         btnHospital = findViewById(R.id.btnHospital);
         btnTratamiento = findViewById(R.id.btnTratamiento);
+        btnConsulta = findViewById(R.id.btnConsulta);
+
 
         // Ir a la pantalla de Clínica
         btnClinica.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, ClinicaActivity.class);
             startActivity(intent);
         });
+
 
         // Ir a la pantalla de Especialidad
         btnEspecialidad.setOnClickListener(v -> {
@@ -81,6 +85,11 @@ public class MainActivity extends AppCompatActivity {
         // Ir a la pantalla de Tratamiento
         btnTratamiento.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, PacienteActivity.class);
+            startActivity(intent);
+        });
+        //Ir a la pantalla de Consulta
+        btnConsulta.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ConsultaActivity.class);
             startActivity(intent);
         });
 
