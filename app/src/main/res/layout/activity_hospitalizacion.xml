@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/editFechaIngreso"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Fecha de ingreso" />
+
+        <EditText
+            android:id="@+id/editFechaEgreso"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Fecha de egreso" />
+
+        <EditText
+            android:id="@+id/editDuiPaciente"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="DUI del paciente" />
+
+        <EditText
+            android:id="@+id/editIdHospital"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="ID del hospital" />
+
+        <Button
+            android:id="@+id/btnGuardar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Guardar hospitalización" />
+    </LinearLayout>
+</ScrollView>

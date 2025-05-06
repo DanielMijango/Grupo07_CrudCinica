@@ -26,7 +26,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button btnClinica, btnEspecialidad, btnDoctor, btnPaciente;
+    Button btnClinica, btnEspecialidad, btnDoctor, btnPaciente, btnHospitalizacion, btnHospital, btnTratamiento;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +38,9 @@ public class MainActivity extends AppCompatActivity {
         btnEspecialidad = findViewById(R.id.btnEspecialidad);
         btnDoctor = findViewById(R.id.btnDoctor);
         btnPaciente = findViewById(R.id.btnPaciente);
+        btnHospitalizacion = findViewById(R.id.btnHospitalizacion);
+        btnHospital = findViewById(R.id.btnHospital);
+        btnTratamiento = findViewById(R.id.btnTratamiento);
 
         // Ir a la pantalla de Clínica
         btnClinica.setOnClickListener(v -> {
@@ -62,5 +65,24 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, PacienteActivity.class);
             startActivity(intent);
         });
+
+        // Ir a la pantalla de hospitalizacion
+        btnHospitalizacion.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, PacienteActivity.class);
+            startActivity(intent);
+        });
+
+        // Ir a la pantalla de hospital
+        btnHospital.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, PacienteActivity.class);
+            startActivity(intent);
+        });
+
+        // Ir a la pantalla de Tratamiento
+        btnTratamiento.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, PacienteActivity.class);
+            startActivity(intent);
+        });
+
     }
 }

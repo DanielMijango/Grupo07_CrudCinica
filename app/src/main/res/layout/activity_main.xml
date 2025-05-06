@@ -30,4 +30,22 @@
         android:layout_height="wrap_content"
         android:text="Registrar Paciente" />
 
+    <Button
+        android:id="@+id/btnHospitalizacion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Hospitalización" />
+
+    <Button
+        android:id="@+id/btnHospital"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Hospital" />
+
+    <Button
+        android:id="@+id/btnTratamiento"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tratamiento" />
+
 </LinearLayout>
