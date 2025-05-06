@@ -6,39 +6,16 @@
     android:layout_height="match_parent">
 
     <EditText
-        android:id="@+id/edtIdClinica"
+        android:id="@+id/edtIdEliminar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="ID Clínica"
+        android:hint="ID Clínica a eliminar"
         android:inputType="number" />
-
-    <Button
-        android:id="@+id/btnBuscar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Buscar"
-        android:layout_marginTop="10dp" />
-
-    <EditText
-        android:id="@+id/edtNombre"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Nombre"
-        android:enabled="false"
-        android:layout_marginTop="10dp" />
-
-    <EditText
-        android:id="@+id/edtDireccion"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Dirección"
-        android:enabled="false"
-        android:layout_marginTop="10dp" />
 
     <Button
         android:id="@+id/btnEliminar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Eliminar"
-        android:layout_marginTop="20dp" />
+        android:layout_marginTop="16dp" />
 </LinearLayout>

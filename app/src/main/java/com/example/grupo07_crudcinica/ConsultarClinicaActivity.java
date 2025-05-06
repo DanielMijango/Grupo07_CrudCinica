@@ -2,12 +2,7 @@ package com.example.grupo07_crudcinica;
 
 import android.os.Bundle;
 
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-
+import android.database.Cursor;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,30 +11,41 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class ConsultarClinicaActivity extends AppCompatActivity {
 
-    EditText edtIdClinica, edtNombre, edtDireccion;
+    EditText edtIdBuscar, edtNombre, edtDireccion;
     Button btnBuscar;
+    ClinicaDAO clinicaDAO;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_consultar_clinica);
 
-        edtIdClinica = findViewById(R.id.edtIdClinica);
+        edtIdBuscar = findViewById(R.id.edtIdBuscar);
         edtNombre = findViewById(R.id.edtNombre);
         edtDireccion = findViewById(R.id.edtDireccion);
         btnBuscar = findViewById(R.id.btnBuscar);
 
-        btnBuscar.setOnClickListener(v -> {
-            String id = edtIdClinica.getText().toString();
+        clinicaDAO = new ClinicaDAO(this);
 
-            // Aquí simulamos datos encontrados
-            if (id.equals("1")) {
-                edtNombre.setText("Clínica Central");
-                edtDireccion.setText("Av. Principal #123");
-            } else {
-                Toast.makeText(this, "Clínica no encontrada", Toast.LENGTH_SHORT).show();
-                edtNombre.setText("");
-                edtDireccion.setText("");
+        btnBuscar.setOnClickListener(v -> {
+            try {
+                int id = Integer.parseInt(edtIdBuscar.getText().toString());
+                Cursor cursor = clinicaDAO.consultarClinicaPorId(id);
+
+                if (cursor.moveToFirst()) {
+                    String nombre = cursor.getString(cursor.getColumnIndexOrThrow("nombre"));
+                    String direccion = cursor.getString(cursor.getColumnIndexOrThrow("direccion"));
+                    edtNombre.setText(nombre);
+                    edtDireccion.setText(direccion);
+                } else {
+                    Toast.makeText(this, "Clínica no encontrada", Toast.LENGTH_SHORT).show();
+                    edtNombre.setText("");
+                    edtDireccion.setText("");
+                }
+
+                cursor.close();
+            } catch (Exception e) {
+                Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

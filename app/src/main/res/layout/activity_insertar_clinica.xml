@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <EditText
-        android:id="@+id/edtIdClinica"
+        android:id="@+id/edtId"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="ID Clínica"
@@ -16,21 +16,18 @@
         android:id="@+id/edtNombre"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Nombre Clínica"
-        android:layout_marginTop="10dp" />
+        android:hint="Nombre" />
 
     <EditText
         android:id="@+id/edtDireccion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Dirección"
-        android:layout_marginTop="10dp" />
+        android:hint="Dirección" />
 
     <Button
-        android:id="@+id/btnGuardar"
+        android:id="@+id/btnInsertar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Guardar Clínica"
-        android:layout_marginTop="20dp" />
-
+        android:text="Insertar"
+        android:layout_marginTop="16dp" />
 </LinearLayout>
