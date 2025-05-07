@@ -7,6 +7,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.grupo07_crudcinica.ClinicaDbHelper;
+
 public class InsertarEspecialidadActivity extends AppCompatActivity {
 
     EditText editNombreEspecialidad;
