@@ -19,7 +19,7 @@ import java.io.InputStreamReader;
 public class ClinicaDbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "Clinica.db";
-    private static final int DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 11;
     private final Context context;
 
     public ClinicaDbHelper(Context context) {
@@ -77,6 +77,20 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
                 "PRIMARY KEY (idClinica, idEspecialidad), " +
                 "FOREIGN KEY (idClinica) REFERENCES Clinica(idClinica), " +
                 "FOREIGN KEY (idEspecialidad) REFERENCES Especialidad(idEspecialidad));");
+
+        db.execSQL("CREATE TABLE MEDICAMENTO (" +
+                "ID_MEDICAMENTO TEXT PRIMARY KEY," +
+                "NOMBRE_MEDICAMENTO TEXT," +
+                "FECHA_VENCIMIENTO TEXT," + // Usamos TEXT para fechas en SQLite
+                "PRECIO_MEDICAMENTO REAL)");
+
+        // Crear tabla RELATIONSHIP_14 (Medicamento-DetalleFactura)
+        db.execSQL("CREATE TABLE RELATIONSHIP_14 (" +
+                "ID_DETALLE TEXT," +
+                "ID_MEDICAMENTO TEXT," +
+                "PRIMARY KEY (ID_DETALLE, ID_MEDICAMENTO)," +
+                "FOREIGN KEY (ID_DETALLE) REFERENCES DETALLE_FACTURA(ID_DETALLE)," +
+                "FOREIGN KEY (ID_MEDICAMENTO) REFERENCES MEDICAMENTO(ID_MEDICAMENTO))");
 
         cargarDatosDesdeJSON(db);
     }
@@ -213,6 +227,116 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
     private String generarId(String prefijo) {
         return prefijo + String.format("%03d", (int)(Math.random() * 1000));
     }
+
+
+    public long insertarMedicamento(String nombre, String fechaVencimiento, double precio) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("ID_MEDICAMENTO", generarId("MED")); // ← AÑADIR ESTO
+        values.put("NOMBRE_MEDICAMENTO", nombre);
+        values.put("FECHA_VENCIMIENTO", fechaVencimiento);
+        values.put("PRECIO_MEDICAMENTO", precio);
+
+        long id = db.insert("MEDICAMENTO", null, values);
+        db.close();
+        return id;
+    }
+
+    public Cursor obtenerTodosMedicamentos() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query("MEDICAMENTO",
+                new String[]{"ID_MEDICAMENTO", "NOMBRE_MEDICAMENTO", "FECHA_VENCIMIENTO", "PRECIO_MEDICAMENTO"},
+                null, null, null, null,
+                "NOMBRE_MEDICAMENTO ASC");
+    }
+
+    public Cursor obtenerMedicamentoPorId(long id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query("MEDICAMENTO",
+                new String[]{"ID_MEDICAMENTO", "NOMBRE_MEDICAMENTO", "FECHA_VENCIMIENTO", "PRECIO_MEDICAMENTO"},
+                "ID_MEDICAMENTO = ?",
+                new String[]{String.valueOf(id)},
+                null, null, null);
+    }
+
+    public int actualizarMedicamento(long id, String nombre, String fechaVencimiento, double precio) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("NOMBRE_MEDICAMENTO", nombre);
+        values.put("FECHA_VENCIMIENTO", fechaVencimiento);
+        values.put("PRECIO_MEDICAMENTO", precio);
+
+        int rowsAffected = db.update("MEDICAMENTO", values,
+                "ID_MEDICAMENTO = ?",
+                new String[]{String.valueOf(id)});
+        db.close();
+        return rowsAffected;
+    }
+
+
+    public int eliminarMedicamento(long id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int rowsDeleted = db.delete("MEDICAMENTO",
+                "ID_MEDICAMENTO = ?",
+                new String[]{String.valueOf(id)});
+        db.close();
+        return rowsDeleted;
+    }
+
+
+    public Cursor buscarMedicamentosPorNombre(String nombre) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query("MEDICAMENTO",
+                new String[]{"ID_MEDICAMENTO", "NOMBRE_MEDICAMENTO", "FECHA_VENCIMIENTO", "PRECIO_MEDICAMENTO"},
+                "NOMBRE_MEDICAMENTO LIKE ?",
+                new String[]{"%" + nombre + "%"},
+                null, null,
+                "NOMBRE_MEDICAMENTO ASC");
+    }
+
+
+    public int contarMedicamentos() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM MEDICAMENTO", null);
+        cursor.moveToFirst();
+        int count = cursor.getInt(0);
+        cursor.close();
+        return count;
+    }
+
+
+    public boolean agregarMedicamentoADetalle(String idDetalle, long idMedicamento) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("ID_DETALLE", idDetalle);
+        values.put("ID_MEDICAMENTO", idMedicamento);
+
+        long result = db.insert("RELATIONSHIP_14", null, values);
+        db.close();
+        return result != -1;
+    }
+
+
+    public Cursor obtenerMedicamentosPorDetalle(String idDetalle) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT M.* FROM MEDICAMENTO M " +
+                "INNER JOIN RELATIONSHIP_14 R ON M.ID_MEDICAMENTO = R.ID_MEDICAMENTO " +
+                "WHERE R.ID_DETALLE = ?";
+        return db.rawQuery(query, new String[]{idDetalle});
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // ------------------------- Cargar ubicaciones desde JSON -------------------------
     private void cargarDatosDesdeJSON(SQLiteDatabase db) {
