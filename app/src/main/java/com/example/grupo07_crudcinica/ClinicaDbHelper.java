@@ -5,21 +5,22 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import android.util.Log;
-import java.util.UUID;
 
 public class ClinicaDbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "Clinica.db";
-    private static final int DATABASE_VERSION = 7;
-    private Context context;
+    private static final int DATABASE_VERSION = 10;
+    private final Context context;
 
     public ClinicaDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -28,15 +29,7 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // Tabla Clinica
-        db.execSQL("CREATE TABLE Clinica (" +
-                "idClinica INTEGER PRIMARY KEY," +
-                "nombre TEXT," +
-                "direccion TEXT," +
-                "id_distrito INTEGER," +
-                "FOREIGN KEY (id_distrito) REFERENCES distrito(id_distrito));");
-
-        // Tablas de ubicación
+        // Crear tablas en orden correcto
         db.execSQL("CREATE TABLE departamento (" +
                 "id_departamento INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "nombre TEXT NOT NULL);");
@@ -53,18 +46,24 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
                 "id_distrito INTEGER," +
                 "FOREIGN KEY (id_distrito) REFERENCES distrito(id_distrito));");
 
-        // Tabla Especialidad
+        db.execSQL("CREATE TABLE Clinica (" +
+                "idClinica INTEGER PRIMARY KEY," +
+                "nombre TEXT," +
+                "direccion TEXT," +
+                "id_distrito INTEGER," +
+                "FOREIGN KEY (id_distrito) REFERENCES distrito(id_distrito));");
+
         db.execSQL("CREATE TABLE ESPECIALIDAD (" +
                 "ID_ESPECIALIDAD CHAR(4) PRIMARY KEY," +
                 "NOMBRE_ESPECIALIDAD VARCHAR(50));");
 
-        // Tabla Doctor
         db.execSQL("CREATE TABLE DOCTOR (" +
                 "ID_DOCTOR CHAR(4) PRIMARY KEY," +
                 "NOMBRE_DOC VARCHAR(50)," +
-                "APELLIDO_DOC VARCHAR(50));");
+                "APELLIDO_DOC VARCHAR(50)," +
+                "ID_ESPECIALIDAD CHAR(4)," +
+                "FOREIGN KEY (ID_ESPECIALIDAD) REFERENCES ESPECIALIDAD(ID_ESPECIALIDAD));");
 
-        // Tabla Paciente
         db.execSQL("CREATE TABLE PACIENTE (" +
                 "ID_PACIENTE CHAR(4) PRIMARY KEY," +
                 "ID_ASEGURADORA CHAR(4)," +
@@ -72,11 +71,19 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
                 "APELLIDO_PACIENTE VARCHAR(50)," +
                 "DUI_PACIENTE CHAR(12));");
 
+        db.execSQL("CREATE TABLE Clinica_Especialidad (" +
+                "idClinica INTEGER NOT NULL, " +
+                "idEspecialidad TEXT NOT NULL, " +
+                "PRIMARY KEY (idClinica, idEspecialidad), " +
+                "FOREIGN KEY (idClinica) REFERENCES Clinica(idClinica), " +
+                "FOREIGN KEY (idEspecialidad) REFERENCES Especialidad(idEspecialidad));");
+
         cargarDatosDesdeJSON(db);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS Clinica_Especialidad;");
         db.execSQL("DROP TABLE IF EXISTS Clinica;");
         db.execSQL("DROP TABLE IF EXISTS municipio;");
         db.execSQL("DROP TABLE IF EXISTS distrito;");
@@ -87,12 +94,20 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    // ------------------------- CRUD ESPECIALIDAD -------------------------
+    @Override
+    public void onOpen(SQLiteDatabase db) {
+        super.onOpen(db);
+        if (!db.isReadOnly()) {
+            db.execSQL("PRAGMA foreign_keys=ON;");
+        }
+    }
 
+    // ------------------------- CRUD ESPECIALIDAD -------------------------
     public Cursor obtenerEspecialidadPorId(String id) {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT * FROM ESPECIALIDAD WHERE ID_ESPECIALIDAD = ?", new String[]{id});
     }
+
     public long insertarEspecialidad(String nombre) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -118,18 +133,24 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
         return db.delete("ESPECIALIDAD", "ID_ESPECIALIDAD = ?", new String[]{id}) > 0;
     }
 
-    // ------------------------- CRUD DOCTOR -------------------------
+    public Cursor obtenerTodasEspecialidades() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT ID_ESPECIALIDAD, NOMBRE_ESPECIALIDAD FROM ESPECIALIDAD", null);
+    }
 
+    // ------------------------- CRUD DOCTOR -------------------------
     public Cursor obtenerDoctorPorId(String id) {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT * FROM DOCTOR WHERE ID_DOCTOR = ?", new String[]{id});
     }
-    public long insertarDoctor(String nombre, String apellido) {
+
+    public long insertarDoctor(String nombre, String apellido, String idEspecialidad) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("ID_DOCTOR", generarId("DOC"));
         values.put("NOMBRE_DOC", nombre);
         values.put("APELLIDO_DOC", apellido);
+        values.put("ID_ESPECIALIDAD", idEspecialidad);
         return db.insert("DOCTOR", null, values);
     }
 
@@ -152,6 +173,11 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
     }
 
     // ------------------------- CRUD PACIENTE -------------------------
+    public Cursor obtenerPacientePorId(String id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM PACIENTE WHERE ID_PACIENTE = ?", new String[]{id});
+    }
+
     public long insertarPaciente(String nombre, String apellido, String dui, String idAseguradora) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -178,9 +204,9 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
         return db.update("PACIENTE", values, "ID_PACIENTE = ?", new String[]{id}) > 0;
     }
 
-    public boolean eliminarPaciente(String id) {
+    public int eliminarPaciente(String id) {
         SQLiteDatabase db = this.getWritableDatabase();
-        return db.delete("PACIENTE", "ID_PACIENTE = ?", new String[]{id}) > 0;
+        return db.delete("PACIENTE", "ID_PACIENTE = ?", new String[]{id});
     }
 
     // ------------------------- Utilidades -------------------------
@@ -239,10 +265,4 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
             e.printStackTrace();
         }
     }
-
-    // Alias para mantener compatibilidad con ConsultarEspecialidadActivity
-    public Cursor obtenerTodasEspecialidades() {
-        return consultarEspecialidades();
-    }
-
 }

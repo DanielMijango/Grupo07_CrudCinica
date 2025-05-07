@@ -31,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
         btnDetalleFactura.setOnClickListener(v -> startActivity(new Intent(this, com.example.grupo07_crudcinica.DetalleFactura.DetalleFacturaMenuActivity.class)));
         btnEspecialidad.setOnClickListener(v -> startActivity(new Intent(this, com.example.grupo07_crudcinica.Especialidad.EspecialidadMenuActivity.class)));
         btnDoctor.setOnClickListener(v -> startActivity(new Intent(this, com.example.grupo07_crudcinica.Doctor.DoctorMenuActivity.class)));
+        btnPaciente.setOnClickListener(v -> startActivity(new Intent(this, com.example.grupo07_crudcinica.Paciente.MenuPacienteActivity.class))
+        );
         // Los demás aún no están implementados, los agregaremos después
     }
 }
