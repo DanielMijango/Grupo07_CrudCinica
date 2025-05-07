@@ -19,7 +19,7 @@ import android.util.Log;
 public class ClinicaDbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "Clinica.db";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
 
     private Context context;
 
@@ -33,8 +33,9 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
         String sql = "CREATE TABLE Clinica (" +
                 "idClinica INTEGER PRIMARY KEY," +
                 "nombre TEXT," +
-                "direccion TEXT" +
-                ");";
+                "direccion TEXT," +
+                "id_distrito INTEGER," +
+                "FOREIGN KEY (id_distrito) REFERENCES distrito(id_distrito));";
         db.execSQL(sql);
         //Agregando tablas de departamento,distrito y municipio
         db.execSQL("CREATE TABLE departamento (" +
