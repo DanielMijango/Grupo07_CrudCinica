@@ -18,7 +18,7 @@ import java.util.UUID;
 public class ClinicaDbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "Clinica.db";
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 8; // Incrementé la versión por el cambio
     private Context context;
 
     public ClinicaDbHelper(Context context) {
@@ -72,6 +72,21 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
                 "APELLIDO_PACIENTE VARCHAR(50)," +
                 "DUI_PACIENTE CHAR(12));");
 
+        // Tabla Medicamento (NUEVA)
+        db.execSQL("CREATE TABLE MEDICAMENTO (" +
+                "ID_MEDICAMENTO INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "NOMBRE_MEDICAMENTO TEXT NOT NULL," +
+                "FECHA_VENCIMIENTO TEXT NOT NULL," +
+                "PRECIO_MEDICAMENTO REAL NOT NULL);");
+
+        // Tabla RELATIONSHIP_14 (Medicamento-DetalleFactura)
+        db.execSQL("CREATE TABLE RELATIONSHIP_14 (" +
+                "ID_DETALLE TEXT NOT NULL," +
+                "ID_MEDICAMENTO INTEGER NOT NULL," +
+                "PRIMARY KEY (ID_DETALLE, ID_MEDICAMENTO)," +
+                "FOREIGN KEY (ID_DETALLE) REFERENCES DETALLE_FACTURA(ID_DETALLE)," +
+                "FOREIGN KEY (ID_MEDICAMENTO) REFERENCES MEDICAMENTO(ID_MEDICAMENTO));");
+
         cargarDatosDesdeJSON(db);
     }
 
@@ -84,6 +99,8 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS ESPECIALIDAD;");
         db.execSQL("DROP TABLE IF EXISTS DOCTOR;");
         db.execSQL("DROP TABLE IF EXISTS PACIENTE;");
+        db.execSQL("DROP TABLE IF EXISTS MEDICAMENTO;");
+        db.execSQL("DROP TABLE IF EXISTS RELATIONSHIP_14;");
         onCreate(db);
     }
 
@@ -186,6 +203,102 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
     // ------------------------- Utilidades -------------------------
     private String generarId(String prefijo) {
         return prefijo + String.format("%03d", (int)(Math.random() * 1000));
+    }
+
+    //--------------------------- CRUD MEDICAMENTO-------------------------
+    public long insertarMedicamento(String nombre, String fechaVencimiento, double precio) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("NOMBRE_MEDICAMENTO", nombre);
+        values.put("FECHA_VENCIMIENTO", fechaVencimiento);
+        values.put("PRECIO_MEDICAMENTO", precio);
+
+        long id = db.insert("MEDICAMENTO", null, values);
+        db.close();
+        return id;
+    }
+
+    public Cursor obtenerTodosMedicamentos() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query("MEDICAMENTO",
+                new String[]{"ID_MEDICAMENTO", "NOMBRE_MEDICAMENTO", "FECHA_VENCIMIENTO", "PRECIO_MEDICAMENTO"},
+                null, null, null, null,
+                "NOMBRE_MEDICAMENTO ASC");
+    }
+
+    public Cursor obtenerMedicamentoPorId(long id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query("MEDICAMENTO",
+                new String[]{"ID_MEDICAMENTO", "NOMBRE_MEDICAMENTO", "FECHA_VENCIMIENTO", "PRECIO_MEDICAMENTO"},
+                "ID_MEDICAMENTO = ?",
+                new String[]{String.valueOf(id)},
+                null, null, null);
+    }
+
+    public int actualizarMedicamento(long id, String nombre, String fechaVencimiento, double precio) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("NOMBRE_MEDICAMENTO", nombre);
+        values.put("FECHA_VENCIMIENTO", fechaVencimiento);
+        values.put("PRECIO_MEDICAMENTO", precio);
+
+        int rowsAffected = db.update("MEDICAMENTO", values,
+                "ID_MEDICAMENTO = ?",
+                new String[]{String.valueOf(id)});
+        db.close();
+        return rowsAffected;
+    }
+
+
+    public int eliminarMedicamento(long id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int rowsDeleted = db.delete("MEDICAMENTO",
+                "ID_MEDICAMENTO = ?",
+                new String[]{String.valueOf(id)});
+        db.close();
+        return rowsDeleted;
+    }
+
+
+    public Cursor buscarMedicamentosPorNombre(String nombre) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query("MEDICAMENTO",
+                new String[]{"ID_MEDICAMENTO", "NOMBRE_MEDICAMENTO", "FECHA_VENCIMIENTO", "PRECIO_MEDICAMENTO"},
+                "NOMBRE_MEDICAMENTO LIKE ?",
+                new String[]{"%" + nombre + "%"},
+                null, null,
+                "NOMBRE_MEDICAMENTO ASC");
+    }
+
+
+    public int contarMedicamentos() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM MEDICAMENTO", null);
+        cursor.moveToFirst();
+        int count = cursor.getInt(0);
+        cursor.close();
+        return count;
+    }
+
+
+    public boolean agregarMedicamentoADetalle(String idDetalle, long idMedicamento) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("ID_DETALLE", idDetalle);
+        values.put("ID_MEDICAMENTO", idMedicamento);
+
+        long result = db.insert("RELATIONSHIP_14", null, values);
+        db.close();
+        return result != -1;
+    }
+
+
+    public Cursor obtenerMedicamentosPorDetalle(String idDetalle) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT M.* FROM MEDICAMENTO M " +
+                "INNER JOIN RELATIONSHIP_14 R ON M.ID_MEDICAMENTO = R.ID_MEDICAMENTO " +
+                "WHERE R.ID_DETALLE = ?";
+        return db.rawQuery(query, new String[]{idDetalle});
     }
 
     // ------------------------- Cargar ubicaciones desde JSON -------------------------
