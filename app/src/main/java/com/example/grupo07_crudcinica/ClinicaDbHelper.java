@@ -119,6 +119,11 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
     }
 
     // ------------------------- CRUD DOCTOR -------------------------
+
+    public Cursor obtenerDoctorPorId(String id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM DOCTOR WHERE ID_DOCTOR = ?", new String[]{id});
+    }
     public long insertarDoctor(String nombre, String apellido) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();

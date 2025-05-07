@@ -13,6 +13,21 @@
         android:theme="@style/Theme.Grupo07_CrudCinica"
         tools:targetApi="31">
         <activity
+            android:name=".Doctor.DoctorMenuActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Doctor.EliminarDoctorActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Doctor.ActualizarDoctorActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Doctor.ConsultarDoctorActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Doctor.InsertarDoctorActivity"
+            android:exported="false" />
+        <activity
             android:name=".Especialidad.ActualizarEspecialidadActivity"
             android:exported="false" />
         <activity
