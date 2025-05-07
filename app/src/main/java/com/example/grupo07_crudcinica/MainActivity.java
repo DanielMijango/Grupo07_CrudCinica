@@ -2,29 +2,13 @@ package com.example.grupo07_crudcinica;
 
 import android.os.Bundle;
 
-import com.google.android.material.snackbar.Snackbar;
-
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.view.View;
-
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-
-import com.example.grupo07_crudcinica.databinding.ActivityMainBinding;
-
-import android.view.Menu;
-import android.view.MenuItem;
 
 import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
-import androidx.appcompat.app.AppCompatActivity;
+
 public class MainActivity extends AppCompatActivity {
-    Button btnClinica, btnEspecialidad, btnDoctor, btnPaciente, btnConsulta, btnReceta, btnMedicamento, btnSeguro, btnHospital, btnDetalleReceta;
+    Button btnClinica, btnEspecialidad, btnDoctor, btnPaciente, btnConsulta, btnFactura, btnMedicamento, btnSeguro, btnHospital, btnDetalleFactura;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,13 +20,15 @@ public class MainActivity extends AppCompatActivity {
         btnDoctor = findViewById(R.id.btnDoctor);
         btnPaciente = findViewById(R.id.btnPaciente);
         btnConsulta = findViewById(R.id.btnConsulta);
-        btnReceta = findViewById(R.id.btnReceta);
+        btnFactura = findViewById(R.id.btnFactura);
         btnMedicamento = findViewById(R.id.btnMedicamento);
         btnSeguro = findViewById(R.id.btnSeguro);
         btnHospital = findViewById(R.id.btnHospital);
-        btnDetalleReceta = findViewById(R.id.btnDetalleReceta);
+        btnDetalleFactura = findViewById(R.id.btnDetalleFactura);
 
-        btnClinica.setOnClickListener(v -> startActivity(new Intent(this, ClinicaMenuActivity.class)));
+        btnClinica.setOnClickListener(v -> startActivity(new Intent(this, com.example.grupo07_crudcinica.Clinica.ClinicaMenuActivity.class)));
+        btnMedicamento.setOnClickListener(v -> startActivity(new Intent(this, com.example.grupo07_crudcinica.Medicamento.MedicamentoMenuActivity.class)));
+        btnDetalleFactura.setOnClickListener(v -> startActivity(new Intent(this, com.example.grupo07_crudcinica.DetalleFactura.DetalleFacturaMenuActivity.class)));
         // Los demás aún no están implementados, los agregaremos después
     }
 }

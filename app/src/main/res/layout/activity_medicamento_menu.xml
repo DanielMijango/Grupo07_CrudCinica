@@ -7,30 +7,30 @@
     android:layout_height="match_parent">
 
     <Button
-        android:id="@+id/btnInsertarClinica"
+        android:id="@+id/btnInsertarMedicamento"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Insertar Clínica" />
+        android:text="Insertar Medicamento" />
 
     <Button
-        android:id="@+id/btnConsultarClinica"
+        android:id="@+id/btnConsultarMedicamento"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Consultar Clínica"
+        android:text="Consultar Medicamento"
         android:layout_marginTop="10dp" />
 
     <Button
-        android:id="@+id/btnActualizarClinica"
+        android:id="@+id/btnActualizarMedicamento"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Actualizar Clínica"
+        android:text="Actualizar Medicamento"
         android:layout_marginTop="10dp" />
 
     <Button
-        android:id="@+id/btnEliminarClinica"
+        android:id="@+id/btnEliminarMedicamento"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Eliminar Clínica"
+        android:text="Eliminar Medicamento"
         android:layout_marginTop="10dp" />
 
 </LinearLayout>

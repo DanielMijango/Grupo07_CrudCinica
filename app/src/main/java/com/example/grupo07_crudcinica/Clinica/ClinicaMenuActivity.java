@@ -1,16 +1,13 @@
-package com.example.grupo07_crudcinica;
+package com.example.grupo07_crudcinica.Clinica;
 
 import android.os.Bundle;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+
 import android.content.Intent;
-import android.os.Bundle;
 import android.widget.Button;
-import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.grupo07_crudcinica.R;
 
 public class ClinicaMenuActivity extends AppCompatActivity {
 
@@ -21,10 +18,10 @@ public class ClinicaMenuActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_clinica_menu);
 
-        btnInsertar = findViewById(R.id.btnInsertar);
-        btnConsultar = findViewById(R.id.btnConsultar);
-        btnActualizar = findViewById(R.id.btnActualizar);
-        btnEliminar = findViewById(R.id.btnEliminar);
+        btnInsertar = findViewById(R.id.btnInsertarClinica);
+        btnConsultar = findViewById(R.id.btnConsultarClinica);
+        btnActualizar = findViewById(R.id.btnActualizarClinica);
+        btnEliminar = findViewById(R.id.btnEliminarClinica);
 
         btnInsertar.setOnClickListener(v -> startActivity(new Intent(this, InsertarClinicaActivity.class)));
         btnConsultar.setOnClickListener(v -> startActivity(new Intent(this, ConsultarClinicaActivity.class)));

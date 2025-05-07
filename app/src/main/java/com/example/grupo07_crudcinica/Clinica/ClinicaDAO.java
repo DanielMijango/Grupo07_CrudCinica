@@ -1,9 +1,11 @@
-package com.example.grupo07_crudcinica;
+package com.example.grupo07_crudcinica.Clinica;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+
+import com.example.grupo07_crudcinica.ClinicaDbHelper;
 
 public class ClinicaDAO {
 

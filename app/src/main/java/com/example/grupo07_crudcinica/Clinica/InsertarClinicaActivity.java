@@ -1,12 +1,13 @@
-package com.example.grupo07_crudcinica;
+package com.example.grupo07_crudcinica.Clinica;
 
 import android.os.Bundle;
 
-import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.grupo07_crudcinica.R;
 
 public class InsertarClinicaActivity extends AppCompatActivity {
 

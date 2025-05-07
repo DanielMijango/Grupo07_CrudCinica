@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- ID Factura (puede ser un Spinner si prefieres seleccionarla) -->
+    <EditText
+        android:id="@+id/edtIdFactura"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="ID Factura"
+        android:inputType="number" />
+
+    <!-- Spinner para seleccionar medicamento (mejor UX) -->
+    <Spinner
+        android:id="@+id/spinnerMedicamento"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Selecciona un medicamento" />
+
+    <!-- Campos de detalle -->
+    <EditText
+        android:id="@+id/edtCantidad"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Cantidad"
+        android:inputType="number"
+        android:layout_marginTop="8dp" />
+
+    <EditText
+        android:id="@+id/edtPrecioUnitario"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Precio unitario"
+        android:inputType="numberDecimal"
+        android:layout_marginTop="8dp" />
+
+    <!-- Botón -->
+    <Button
+        android:id="@+id/btnAgregarDetalle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Agregar a Factura"
+        android:layout_marginTop="16dp"
+      />
+
+</LinearLayout>

@@ -13,19 +13,49 @@
         android:theme="@style/Theme.Grupo07_CrudCinica"
         tools:targetApi="31">
         <activity
-            android:name=".EliminarClinicaActivity"
+            android:name=".DetalleFactura.EliminarDetalle"
             android:exported="false" />
         <activity
-            android:name=".ActualizarClinicaActivity"
+            android:name=".DetalleFactura.ConsultarDetalle"
             android:exported="false" />
         <activity
-            android:name=".ConsultarClinicaActivity"
+            android:name=".DetalleFactura.ActualizarDetalle"
             android:exported="false" />
         <activity
-            android:name=".InsertarClinicaActivity"
+            android:name=".DetalleFactura.InsertarDetalle"
             android:exported="false" />
         <activity
-            android:name=".ClinicaMenuActivity"
+            android:name=".DetalleFactura.DetalleFacturaMenuActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Medicamento.ConsultarMedicamento"
+            android:exported="false" />
+        <activity
+            android:name=".Medicamento.EliminarMedicamento"
+            android:exported="false" />
+        <activity
+            android:name=".Medicamento.ActualizarMedicamento"
+            android:exported="false" />
+        <activity
+            android:name=".Medicamento.InsertarMedicamento"
+            android:exported="false" />
+        <activity
+            android:name=".Medicamento.MedicamentoMenuActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Clinica.EliminarClinicaActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Clinica.ActualizarClinicaActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Clinica.ConsultarClinicaActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Clinica.InsertarClinicaActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Clinica.ClinicaMenuActivity"
             android:exported="false" />
         <activity
             android:name=".ConsultaActivity"
