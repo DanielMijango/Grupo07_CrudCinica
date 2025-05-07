@@ -13,6 +13,21 @@
         android:theme="@style/Theme.Grupo07_CrudCinica"
         tools:targetApi="31">
         <activity
+            android:name=".Especialidad.ActualizarEspecialidadActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Especialidad.EliminarEspecialidadActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Especialidad.EspecialidadMenuActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Especialidad.ConsultarEspecialidadActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Especialidad.InsertarEspecialidadActivity"
+            android:exported="false" />
+        <activity
             android:name=".DetalleFactura.EliminarDetalle"
             android:exported="false" />
         <activity
