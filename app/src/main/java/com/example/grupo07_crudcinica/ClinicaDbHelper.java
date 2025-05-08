@@ -98,6 +98,17 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
                 "MONTO_DETALLE REAL," +
                 "FORMA_DE_PAGO TEXT)");
         cargarDatosDesdeJSON(db);
+
+        //crear tabla hospitalizacion
+
+        db.execSQL("CREATE TABLE HOSPITALIZACION (" +
+                "ID_HOSPITALIZACION CHAR(4) PRIMARY KEY," +
+                "ID_PACIENTE CHAR(4) NOT NULL," +
+                "FECHA_INGRESO TEXT NOT NULL," +
+                "FECHA_SALIDA TEXT," +
+                "DIAGNOSTICO TEXT," +
+                "FOREIGN KEY (ID_PACIENTE) REFERENCES PACIENTE(ID_PACIENTE));");
+
     }
 
     @Override
@@ -370,6 +381,43 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
         int rowsDeleted = db.delete("DETALLE_FACTURA", "ID_DETALLE = ?", new String[]{id});
         db.close();
         return rowsDeleted;
+    }
+
+    // CRUD HOSPITALIZACION
+
+    public long insertarHospitalizacion(String idPaciente, String fechaIngreso, String fechaSalida, String diagnostico) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("ID_HOSPITALIZACION", generarId("HOS"));
+        values.put("ID_PACIENTE", idPaciente);
+        values.put("FECHA_INGRESO", fechaIngreso);
+        values.put("FECHA_SALIDA", fechaSalida);
+        values.put("DIAGNOSTICO", diagnostico);
+        return db.insert("HOSPITALIZACION", null, values);
+    }
+
+    public Cursor consultarHospitalizaciones() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM HOSPITALIZACION", null);
+    }
+
+    public Cursor obtenerHospitalizacionPorId(String id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM HOSPITALIZACION WHERE ID_HOSPITALIZACION = ?", new String[]{id});
+    }
+
+    public boolean actualizarHospitalizacion(String id, String fechaIngreso, String fechaSalida, String diagnostico) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("FECHA_INGRESO", fechaIngreso);
+        values.put("FECHA_SALIDA", fechaSalida);
+        values.put("DIAGNOSTICO", diagnostico);
+        return db.update("HOSPITALIZACION", values, "ID_HOSPITALIZACION = ?", new String[]{id}) > 0;
+    }
+
+    public boolean eliminarHospitalizacion(String id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.delete("HOSPITALIZACION", "ID_HOSPITALIZACION = ?", new String[]{id}) > 0;
     }
 
 
