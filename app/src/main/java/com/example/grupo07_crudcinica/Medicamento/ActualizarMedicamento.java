@@ -43,12 +43,12 @@ public class ActualizarMedicamento extends AppCompatActivity {
 
     private void actualizarMedicamento() {
         // Obtener valores de los campos
-        String idStr = edtIdMedicamento.getText().toString().trim();
+        String id = edtIdMedicamento.getText().toString().trim();
         String nuevoNombre = edtNuevoNombre.getText().toString().trim();
         String nuevoPrecioStr = edtNuevoPrecio.getText().toString().trim();
 
         // Validaciones básicas
-        if (idStr.isEmpty()) {
+        if (id.isEmpty()) {
             edtIdMedicamento.setError("Ingrese el ID del medicamento");
             return;
         }
@@ -58,16 +58,13 @@ public class ActualizarMedicamento extends AppCompatActivity {
             return;
         }
 
+        // Verificar si el medicamento existe
+        if (!medicamentoExiste(id)) {
+            Toast.makeText(this, "No existe un medicamento con ese ID", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         try {
-            long id = Long.parseLong(idStr);
-            double nuevoPrecio = nuevoPrecioStr.isEmpty() ? -1 : Double.parseDouble(nuevoPrecioStr);
-
-            // Verificar si el medicamento existe
-            if (!medicamentoExiste(id)) {
-                Toast.makeText(this, "No existe un medicamento con ese ID", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
             // Actualizar solo los campos que tienen datos
             boolean nombreActualizado = false;
             boolean precioActualizado = false;
@@ -77,6 +74,8 @@ public class ActualizarMedicamento extends AppCompatActivity {
             }
 
             if (!nuevoPrecioStr.isEmpty()) {
+                // Validar que el precio sea numérico
+                double nuevoPrecio = Double.parseDouble(nuevoPrecioStr);
                 precioActualizado = actualizarCampo(id, "PRECIO_MEDICAMENTO", nuevoPrecioStr);
             }
 
@@ -89,11 +88,12 @@ public class ActualizarMedicamento extends AppCompatActivity {
             }
 
         } catch (NumberFormatException e) {
-            Toast.makeText(this, "ID y precio deben ser valores numéricos válidos", Toast.LENGTH_SHORT).show();
+            // Solo aplica al precio (el ID ya no necesita ser numérico)
+            Toast.makeText(this, "El precio debe ser un valor numérico válido", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private boolean medicamentoExiste(long id) {
+    private boolean medicamentoExiste(String id) {
         Cursor cursor = dbHelper.obtenerMedicamentoPorId(id);
         boolean existe = cursor != null && cursor.getCount() > 0;
         if (cursor != null) {
@@ -102,7 +102,7 @@ public class ActualizarMedicamento extends AppCompatActivity {
         return existe;
     }
 
-    private boolean actualizarCampo(long id, String campo, String valor) {
+    private boolean actualizarCampo(String id, String campo, String valor) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(campo, valor);

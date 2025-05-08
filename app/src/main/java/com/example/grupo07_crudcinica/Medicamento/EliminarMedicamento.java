@@ -47,38 +47,30 @@ public class EliminarMedicamento extends AppCompatActivity {
     }
 
     private void eliminarMedicamento() {
-        // Validar que se haya ingresado un ID
-        String idStr = edtIdEliminar.getText().toString().trim();
-        if (idStr.isEmpty()) {
+        // Obtener y validar ID ingresado
+        String id = edtIdEliminar.getText().toString().trim();
+        if (id.isEmpty()) {
             edtIdEliminar.setError("Ingrese un ID válido");
             return;
         }
 
-        try {
-            long id = Long.parseLong(idStr);
+        // Verificar si el medicamento existe antes de eliminar
+        if (!existeMedicamento(id)) {
+            Toast.makeText(this, "No existe un medicamento con ese ID", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-            // Verificar si el medicamento existe antes de eliminar
-            if (!existeMedicamento(id)) {
-                Toast.makeText(this, "No existe un medicamento con ese ID", Toast.LENGTH_SHORT).show();
-                return;
-            }
+        // Ejecutar eliminación
+        int filasAfectadas = dbHelper.eliminarMedicamento(id);
 
-            // Ejecutar eliminación
-            int filasAfectadas = dbHelper.eliminarMedicamento(id);
-
-            if (filasAfectadas > 0) {
-                Toast.makeText(this, "Medicamento eliminado correctamente", Toast.LENGTH_SHORT).show();
-                edtIdEliminar.setText("");
-            } else {
-                Toast.makeText(this, "Error al eliminar el medicamento", Toast.LENGTH_SHORT).show();
-            }
-        } catch (NumberFormatException e) {
-            edtIdEliminar.setError("ID debe ser un número válido");
-            Toast.makeText(this, "Ingrese un ID numérico válido", Toast.LENGTH_SHORT).show();
+        if (filasAfectadas > 0) {
+            Toast.makeText(this, "Medicamento eliminado correctamente", Toast.LENGTH_SHORT).show();
+            edtIdEliminar.setText("");
+        } else {
+            Toast.makeText(this, "Error al eliminar el medicamento", Toast.LENGTH_SHORT).show();
         }
     }
-
-    private boolean existeMedicamento(long id) {
+    private boolean existeMedicamento(String id) {
         // Verificar si el medicamento existe en la base de datos
         Cursor cursor = dbHelper.obtenerMedicamentoPorId(id);
         boolean existe = cursor != null && cursor.getCount() > 0;

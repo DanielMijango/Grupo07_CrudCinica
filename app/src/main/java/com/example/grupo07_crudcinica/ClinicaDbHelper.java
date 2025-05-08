@@ -19,7 +19,7 @@ import java.io.InputStreamReader;
 public class ClinicaDbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "Clinica.db";
-    private static final int DATABASE_VERSION = 11;
+    private static final int DATABASE_VERSION = 14;
     private final Context context;
 
     public ClinicaDbHelper(Context context) {
@@ -85,13 +85,18 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
                 "PRECIO_MEDICAMENTO REAL)");
 
         // Crear tabla RELATIONSHIP_14 (Medicamento-DetalleFactura)
-        db.execSQL("CREATE TABLE RELATIONSHIP_14 (" +
+        db.execSQL("CREATE TABLE MEDICAMENTO_DETALLE (" +
                 "ID_DETALLE TEXT," +
                 "ID_MEDICAMENTO TEXT," +
                 "PRIMARY KEY (ID_DETALLE, ID_MEDICAMENTO)," +
                 "FOREIGN KEY (ID_DETALLE) REFERENCES DETALLE_FACTURA(ID_DETALLE)," +
                 "FOREIGN KEY (ID_MEDICAMENTO) REFERENCES MEDICAMENTO(ID_MEDICAMENTO))");
 
+        db.execSQL("CREATE TABLE DETALLE_FACTURA (" +
+                "ID_DETALLE TEXT PRIMARY KEY," +
+                "ID_FACTURA TEXT," +
+                "MONTO_DETALLE REAL," +
+                "FORMA_DE_PAGO TEXT)");
         cargarDatosDesdeJSON(db);
     }
 
@@ -105,6 +110,10 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS ESPECIALIDAD;");
         db.execSQL("DROP TABLE IF EXISTS DOCTOR;");
         db.execSQL("DROP TABLE IF EXISTS PACIENTE;");
+        db.execSQL("DROP TABLE IF EXISTS MEDICAMENTO");
+        db.execSQL("DROP TABLE IF EXISTS MEDICAMENTO_DETALLE");
+        db.execSQL("DROP TABLE IF EXISTS DETALLE_FACTURA");
+
         onCreate(db);
     }
 
@@ -228,7 +237,7 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
         return prefijo + String.format("%03d", (int)(Math.random() * 1000));
     }
 
-
+   //-------------------------------------- CRUD MEDICAMENTO --------------------------------
     public long insertarMedicamento(String nombre, String fechaVencimiento, double precio) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -250,16 +259,16 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
                 "NOMBRE_MEDICAMENTO ASC");
     }
 
-    public Cursor obtenerMedicamentoPorId(long id) {
+    public Cursor obtenerMedicamentoPorId(String id) {
         SQLiteDatabase db = this.getReadableDatabase();
-        return db.query("MEDICAMENTO",
-                new String[]{"ID_MEDICAMENTO", "NOMBRE_MEDICAMENTO", "FECHA_VENCIMIENTO", "PRECIO_MEDICAMENTO"},
-                "ID_MEDICAMENTO = ?",
-                new String[]{String.valueOf(id)},
-                null, null, null);
+        return db.query("MEDICAMENTO",  // Nombre de la tabla
+                new String[]{"ID_MEDICAMENTO", "NOMBRE_MEDICAMENTO", "FECHA_VENCIMIENTO", "PRECIO_MEDICAMENTO"}, // Columnas
+                "ID_MEDICAMENTO = ?",   // Where clause
+                new String[]{id},       // Parámetros del where (ya es String)
+                null, null, null);      // Group by, having, order by
     }
 
-    public int actualizarMedicamento(long id, String nombre, String fechaVencimiento, double precio) {
+    public int actualizarMedicamento(String id, String nombre, String fechaVencimiento, double precio) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("NOMBRE_MEDICAMENTO", nombre);
@@ -274,7 +283,7 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
     }
 
 
-    public int eliminarMedicamento(long id) {
+    public int eliminarMedicamento(String id) {
         SQLiteDatabase db = this.getWritableDatabase();
         int rowsDeleted = db.delete("MEDICAMENTO",
                 "ID_MEDICAMENTO = ?",
@@ -303,38 +312,65 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
         cursor.close();
         return count;
     }
-
-
-    public boolean agregarMedicamentoADetalle(String idDetalle, long idMedicamento) {
+    public boolean agregarMedicamentoADetalle(String idDetalle, String idMedicamento) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("ID_DETALLE", idDetalle);
-        values.put("ID_MEDICAMENTO", idMedicamento);
+        values.put("ID_MEDICAMENTO", String.valueOf(idMedicamento)); // Asegúrate que sea String
 
-        long result = db.insert("RELATIONSHIP_14", null, values);
+        long result = db.insert("MEDICAMENTO_DETALLE", null, values);
         db.close();
         return result != -1;
     }
 
-
     public Cursor obtenerMedicamentosPorDetalle(String idDetalle) {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT M.* FROM MEDICAMENTO M " +
-                "INNER JOIN RELATIONSHIP_14 R ON M.ID_MEDICAMENTO = R.ID_MEDICAMENTO " +
+                "INNER JOIN MEDICAMENTO_DETALLE R ON M.ID_MEDICAMENTO = R.ID_MEDICAMENTO " +
                 "WHERE R.ID_DETALLE = ?";
         return db.rawQuery(query, new String[]{idDetalle});
     }
 
+ //------------------------------------ CRUD DETALLE_FACTURA-----------------------------------
+ public long insertarDetalleFactura(String idFactura, double montoDetalle, String formaPago) {
+     SQLiteDatabase db = this.getWritableDatabase();
+     ContentValues values = new ContentValues();
+     values.put("ID_DETALLE", generarId("DET"));
+     values.put("ID_FACTURA", idFactura);
+     values.put("MONTO_DETALLE", montoDetalle);
+     values.put("FORMA_DE_PAGO", formaPago);
 
+     long id = db.insert("DETALLE_FACTURA", null, values);
+     db.close();
+     return id;
+ }
+    public Cursor obtenerTodosDetallesFactura() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query("DETALLE_FACTURA",
+                new String[]{"ID_DETALLE", "ID_FACTURA", "MONTO_DETALLE", "FORMA_DE_PAGO"},
+                null, null, null, null, "ID_DETALLE ASC");
+    }
+    public Cursor obtenerTodosLosDetalles() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM DETALLE_FACTURA", null);
+    }
+    public int actualizarDetalleFactura(String id, String idFactura, double montoDetalle, String formaPago) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("ID_FACTURA", idFactura);
+        values.put("MONTO_DETALLE", montoDetalle);
+        values.put("FORMA_DE_PAGO", formaPago);
 
-
-
-
-
-
-
-
-
+        int rowsAffected = db.update("DETALLE_FACTURA", values, "ID_DETALLE = ?", new String[]{id});
+        db.close();
+        return rowsAffected;
+    }
+    public int eliminarDetalleFactura(String id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int rowsDeleted = db.delete("DETALLE_FACTURA", "ID_DETALLE = ?", new String[]{id});
+        db.close();
+        return rowsDeleted;
+    }
 
 
 

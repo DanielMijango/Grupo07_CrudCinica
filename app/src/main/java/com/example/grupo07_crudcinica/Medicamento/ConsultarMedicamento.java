@@ -43,21 +43,15 @@ public class ConsultarMedicamento extends AppCompatActivity {
             return;
         }
 
-        try {
-            // Intentar buscar por ID (si la búsqueda es numérica)
-            long id = Long.parseLong(busqueda);
-            Cursor cursor = dbHelper.obtenerMedicamentoPorId(id);
+        // Primero intentar buscar por ID (directamente como String)
+        Cursor cursor = dbHelper.obtenerMedicamentoPorId(busqueda);
 
-            if (cursor != null && cursor.moveToFirst()) {
-                mostrarResultado(cursor);
-                cursor.close();
-            } else {
-                tvResultado.setText("No se encontró medicamento con ID: " + id);
-                tvResultado.setVisibility(View.VISIBLE);
-            }
-        } catch (NumberFormatException e) {
-            // Si no es numérico, buscar por nombre
-            Cursor cursor = dbHelper.buscarMedicamentosPorNombre(busqueda);
+        if (cursor != null && cursor.moveToFirst()) {
+            mostrarResultado(cursor);
+            cursor.close();
+        } else {
+            // Si no se encontró por ID, buscar por nombre
+            cursor = dbHelper.buscarMedicamentosPorNombre(busqueda);
 
             if (cursor != null && cursor.moveToFirst()) {
                 mostrarResultado(cursor);

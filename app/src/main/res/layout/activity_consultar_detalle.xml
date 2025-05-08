@@ -5,36 +5,8 @@
     android:orientation="vertical"
     android:padding="24dp">
 
-    <!-- ID Detalle (oculto o visible) -->
-    <TextView
-        android:id="@+id/tvIdDetalle"
+    <ListView
+        android:id="@+id/listViewDetalles"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="ID Detalle: 123"
-        android:visibility="gone" />
-
-    <!-- Campos editables -->
-    <EditText
-        android:id="@+id/edtNuevaCantidad"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Nueva cantidad"
-        android:inputType="number" />
-
-    <EditText
-        android:id="@+id/edtNuevoPrecio"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Nuevo precio unitario"
-        android:inputType="numberDecimal"
-        android:layout_marginTop="8dp" />
-
-    <Button
-        android:id="@+id/btnActualizarDetalle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Guardar Cambios"
-        android:layout_marginTop="16dp"
-        android:backgroundTint="#2196F3" />
-
+        android:layout_height="wrap_content" />
 </LinearLayout>
