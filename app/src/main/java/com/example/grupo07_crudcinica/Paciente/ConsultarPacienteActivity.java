@@ -1,37 +1,32 @@
 package com.example.grupo07_crudcinica.Paciente;
 
+import android.annotation.SuppressLint;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-
-import com.example.grupo07_crudcinica.R;
-
-import android.os.Bundle;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
-import android.database.Cursor;
 import com.example.grupo07_crudcinica.ClinicaDbHelper;
 import com.example.grupo07_crudcinica.R;
-
 import java.util.ArrayList;
 
 public class ConsultarPacienteActivity extends AppCompatActivity {
     Spinner spinnerPaciente;
-    TextView tvResultado;
+    TextView tvNombre, tvApellido, tvDui, tvAseguradora;
     ClinicaDbHelper dbHelper;
     ArrayList<String> listaIds = new ArrayList<>();
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_consultar_paciente);
 
         spinnerPaciente = findViewById(R.id.spinnerPaciente);
-        tvResultado = findViewById(R.id.tvResultadoPaciente);
+        tvNombre = findViewById(R.id.tvNombrePaciente);
+        tvApellido = findViewById(R.id.tvApellidoPaciente);
+        tvDui = findViewById(R.id.tvDuiPaciente);
+        tvAseguradora = findViewById(R.id.tvAseguradoraPaciente);
         dbHelper = new ClinicaDbHelper(this);
 
         cargarPacientes();
@@ -41,11 +36,24 @@ public class ConsultarPacienteActivity extends AppCompatActivity {
                 String idPaciente = listaIds.get(pos);
                 Cursor c = dbHelper.obtenerPacientePorId(idPaciente);
                 if (c.moveToFirst()) {
-                    String nombre = c.getString(1);
-                    String apellido = c.getString(2);
-                    String dui = c.getString(3);
-                    String aseg = c.getString(4);
-                    tvResultado.setText("Nombre: " + nombre + "\nApellido: " + apellido + "\nDUI: " + dui + "\nAseguradora: " + aseg);
+                    String nombre = c.getString(c.getColumnIndexOrThrow("NOMBRE_PACIENTE"));
+                    String apellido = c.getString(c.getColumnIndexOrThrow("APELLIDO_PACIENTE"));
+                    String dui = c.getString(c.getColumnIndexOrThrow("DUI_PACIENTE"));
+                    String idAseguradora = c.getString(c.getColumnIndexOrThrow("ID_ASEGURADORA"));
+
+                    tvNombre.setText(nombre);
+                    tvApellido.setText(apellido);
+                    tvDui.setText(dui);
+
+                    // Obtener nombre de aseguradora
+                    Cursor aseg = dbHelper.obtenerAseguradoraPorId(idAseguradora);
+                    if (aseg.moveToFirst()) {
+                        String nombreAseguradora = aseg.getString(aseg.getColumnIndexOrThrow("NOMBRE_ASEGURADORA"));
+                        tvAseguradora.setText(nombreAseguradora);
+                    } else {
+                        tvAseguradora.setText("No encontrada");
+                    }
+                    aseg.close();
                 }
                 c.close();
             }
@@ -58,9 +66,13 @@ public class ConsultarPacienteActivity extends AppCompatActivity {
         Cursor cursor = dbHelper.consultarPacientes();
         ArrayList<String> nombres = new ArrayList<>();
         while (cursor.moveToNext()) {
-            listaIds.add(cursor.getString(0));
-            nombres.add(cursor.getString(1) + " " + cursor.getString(2));
+            String id = cursor.getString(0);
+            String nombre = cursor.getString(1);
+            String apellido = cursor.getString(2);
+            listaIds.add(id);
+            nombres.add(nombre + " " + apellido);
         }
         spinnerPaciente.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, nombres));
+        cursor.close();
     }
 }

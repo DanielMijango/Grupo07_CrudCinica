@@ -17,12 +17,20 @@
         android:layout_height="wrap_content"
         android:hint="Apellido del Doctor" />
 
+    <TextView
+        android:id="@+id/tvEspecialidad"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ESPECIALIDAD"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:layout_marginTop="16dp" />
+
     <Spinner
         android:id="@+id/spinnerEspecialidad"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:spinnerMode="dropdown"
-        android:layout_marginTop="16dp" />
+        android:spinnerMode="dropdown" />
 
     <Button
         android:id="@+id/btnGuardarDoctor"

@@ -13,6 +13,39 @@
         android:theme="@style/Theme.Grupo07_CrudCinica"
         tools:targetApi="31">
         <activity
+            android:name=".Hospital.EliminarHospitalActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Hospital.ActualizarHospitalActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Hospital.ConsultarHospitalActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Hospital.InsertarHospitalActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Hospital.MenuHospitalActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Hospital"
+            android:exported="false" />
+        <activity
+            android:name=".Aseguradora.AseguradoraMenuActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Aseguradora.EliminarAseguradoraActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Aseguradora.ActualizarAseguradoraActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Aseguradora.ConsultarAseguradoraActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Aseguradora.InsertarAseguradoraActivity"
+            android:exported="false" />
+        <activity
             android:name=".hospitalizacion.ActualizarHospitalizacionActivity"
             android:exported="false" />
         <activity
@@ -122,9 +155,6 @@
             android:exported="false" />
         <activity
             android:name=".Tratamiento"
-            android:exported="false" />
-        <activity
-            android:name=".Hospital"
             android:exported="false" />
         <activity
             android:name=".Hospitalizacion"

@@ -15,11 +15,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
+import java.util.ArrayList;
 
 public class ClinicaDbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "Clinica.db";
-    private static final int DATABASE_VERSION = 14;
+    private static final int DATABASE_VERSION = 1;
     private final Context context;
 
     public ClinicaDbHelper(Context context) {
@@ -64,6 +66,12 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
                 "ID_ESPECIALIDAD CHAR(4)," +
                 "FOREIGN KEY (ID_ESPECIALIDAD) REFERENCES ESPECIALIDAD(ID_ESPECIALIDAD));");
 
+        //falta corregir relacion a paciente
+
+        db.execSQL("CREATE TABLE ASEGURADORA (" +
+                "ID_ASEGURADORA CHAR(4) PRIMARY KEY," +
+                "NOMBRE_ASEGURADORA VARCHAR(50) NOT NULL);");
+
         db.execSQL("CREATE TABLE PACIENTE (" +
                 "ID_PACIENTE CHAR(4) PRIMARY KEY," +
                 "ID_ASEGURADORA CHAR(4)," +
@@ -92,23 +100,30 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
                 "FOREIGN KEY (ID_DETALLE) REFERENCES DETALLE_FACTURA(ID_DETALLE)," +
                 "FOREIGN KEY (ID_MEDICAMENTO) REFERENCES MEDICAMENTO(ID_MEDICAMENTO))");
 
+
+
         db.execSQL("CREATE TABLE DETALLE_FACTURA (" +
                 "ID_DETALLE TEXT PRIMARY KEY," +
                 "ID_FACTURA TEXT," +
                 "MONTO_DETALLE REAL," +
                 "FORMA_DE_PAGO TEXT)");
-        cargarDatosDesdeJSON(db);
 
-        //crear tabla hospitalizacion
+
+        db.execSQL("CREATE TABLE HOSPITAL (" +
+                "id_hospital INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "nombre TEXT NOT NULL, " +
+                "direccion TEXT NOT NULL, " +
+                "telefono TEXT)");
 
         db.execSQL("CREATE TABLE HOSPITALIZACION (" +
-                "ID_HOSPITALIZACION CHAR(4) PRIMARY KEY," +
-                "ID_PACIENTE CHAR(4) NOT NULL," +
-                "FECHA_INGRESO TEXT NOT NULL," +
+                "ID_HOSPITALIZACION CHAR(6) PRIMARY KEY, " +
+                "ID_PACIENTE CHAR(4) NOT NULL, " +
+                "FECHA_INGRESO TEXT NOT NULL, " +
+                "FECHA_ALTA TEXT, " +
                 "FECHA_SALIDA TEXT," +
-                "DIAGNOSTICO TEXT," +
-                "FOREIGN KEY (ID_PACIENTE) REFERENCES PACIENTE(ID_PACIENTE));");
+                "FOREIGN KEY(ID_PACIENTE) REFERENCES PACIENTE(ID_PACIENTE));");
 
+        cargarDatosDesdeJSON(db);
     }
 
     @Override
@@ -245,10 +260,10 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
 
     // ------------------------- Utilidades -------------------------
     private String generarId(String prefijo) {
-        return prefijo + String.format("%03d", (int)(Math.random() * 1000));
+        return prefijo + String.format("%03d", (int) (Math.random() * 1000));
     }
 
-   //-------------------------------------- CRUD MEDICAMENTO --------------------------------
+    //-------------------------------------- CRUD MEDICAMENTO --------------------------------
     public long insertarMedicamento(String nombre, String fechaVencimiento, double precio) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -323,6 +338,7 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
         cursor.close();
         return count;
     }
+
     public boolean agregarMedicamentoADetalle(String idDetalle, String idMedicamento) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -341,30 +357,85 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
                 "WHERE R.ID_DETALLE = ?";
         return db.rawQuery(query, new String[]{idDetalle});
     }
+    //------------------------------------ CRUD HOSPITAL-----------------------------------
 
- //------------------------------------ CRUD DETALLE_FACTURA-----------------------------------
- public long insertarDetalleFactura(String idFactura, double montoDetalle, String formaPago) {
-     SQLiteDatabase db = this.getWritableDatabase();
-     ContentValues values = new ContentValues();
-     values.put("ID_DETALLE", generarId("DET"));
-     values.put("ID_FACTURA", idFactura);
-     values.put("MONTO_DETALLE", montoDetalle);
-     values.put("FORMA_DE_PAGO", formaPago);
+    // Insertar un hospital
+    public long insertarHospital(String nombre, String direccion, String telefono) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues valores = new ContentValues();
+        valores.put("nombre", nombre);
+        valores.put("direccion", direccion);
+        valores.put("telefono", telefono);
+        return db.insert("HOSPITAL", null, valores);
+    }
 
-     long id = db.insert("DETALLE_FACTURA", null, values);
-     db.close();
-     return id;
- }
+    // Obtener todos los hospitales (para Spinner)
+    public ArrayList<Integer> obtenerIdsHospitales() {
+        ArrayList<Integer> lista = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT id_hospital FROM HOSPITAL", null);
+        while (cursor.moveToNext()) {
+            lista.add(cursor.getInt(0));
+        }
+        cursor.close();
+        return lista;
+    }
+
+    // Consultar hospital por ID
+    public Cursor consultarHospitalPorId(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM HOSPITAL WHERE id_hospital = ?", new String[]{String.valueOf(id)});
+    }
+
+    // Actualizar hospital
+    public int actualizarHospital(int id, String nombre, String direccion, String telefono) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues valores = new ContentValues();
+        valores.put("nombre", nombre);
+        valores.put("direccion", direccion);
+        valores.put("telefono", telefono);
+        return db.update("HOSPITAL", valores, "id_hospital = ?", new String[]{String.valueOf(id)});
+    }
+
+    // Eliminar hospital
+    public int eliminarHospital(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.delete("HOSPITAL", "id_hospital = ?", new String[]{String.valueOf(id)});
+    }
+
+
+
+
+
+
+
+
+    //------------------------------------ CRUD DETALLE_FACTURA-----------------------------------
+    public long insertarDetalleFactura(String idFactura, double montoDetalle, String formaPago) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("ID_DETALLE", generarId("DET"));
+        values.put("ID_FACTURA", idFactura);
+        values.put("MONTO_DETALLE", montoDetalle);
+        values.put("FORMA_DE_PAGO", formaPago);
+
+        long id = db.insert("DETALLE_FACTURA", null, values);
+        db.close();
+        return id;
+    }
+
     public Cursor obtenerTodosDetallesFactura() {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.query("DETALLE_FACTURA",
                 new String[]{"ID_DETALLE", "ID_FACTURA", "MONTO_DETALLE", "FORMA_DE_PAGO"},
                 null, null, null, null, "ID_DETALLE ASC");
     }
+
     public Cursor obtenerTodosLosDetalles() {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT * FROM DETALLE_FACTURA", null);
     }
+
     public int actualizarDetalleFactura(String id, String idFactura, double montoDetalle, String formaPago) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -376,6 +447,7 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
         db.close();
         return rowsAffected;
     }
+
     public int eliminarDetalleFactura(String id) {
         SQLiteDatabase db = this.getWritableDatabase();
         int rowsDeleted = db.delete("DETALLE_FACTURA", "ID_DETALLE = ?", new String[]{id});
@@ -385,40 +457,122 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
 
     // CRUD HOSPITALIZACION
 
-    public long insertarHospitalizacion(String idPaciente, String fechaIngreso, String fechaSalida, String diagnostico) {
+
+
+
+    public List<String> obtenerTodosLosIdPacientes() {
+        List<String> listaIds = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT ID_PACIENTE FROM PACIENTE", null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                listaIds.add(cursor.getString(0));
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+        return listaIds;
+    }
+
+
+    public List<String> obtenerIdsHospitalizacion() {
+        List<String> ids = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT ID_HOSPITALIZACION FROM hospitalizacion", null);
+        if (cursor.moveToFirst()) {
+            do {
+                String id = cursor.getString(cursor.getColumnIndexOrThrow("ID_HOSPITALIZACION"));
+                ids.add(id);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return ids;
+    }
+    // Metodo para obtener los IDs de los pacientes
+    public List<String> obtenerIdsPacientes() {
+        List<String> lista = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT id_paciente FROM paciente", null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                lista.add(cursor.getString(0));
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+        return lista;
+    }
+
+    public long insertarHospitalizacion(String idPaciente, String fechaIngreso, String fechaSalida) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("ID_HOSPITALIZACION", generarId("HOS"));
         values.put("ID_PACIENTE", idPaciente);
         values.put("FECHA_INGRESO", fechaIngreso);
         values.put("FECHA_SALIDA", fechaSalida);
-        values.put("DIAGNOSTICO", diagnostico);
         return db.insert("HOSPITALIZACION", null, values);
     }
 
-    public Cursor consultarHospitalizaciones() {
+    public Cursor consultarHospitalizacion(String idHospitalizacion) {
         SQLiteDatabase db = this.getReadableDatabase();
-        return db.rawQuery("SELECT * FROM HOSPITALIZACION", null);
+        return db.rawQuery(
+                "SELECT * FROM hospitalizacion WHERE ID_HOSPITALIZACION = ?",
+                new String[]{idHospitalizacion}
+        );
     }
 
-    public Cursor obtenerHospitalizacionPorId(String id) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        return db.rawQuery("SELECT * FROM HOSPITALIZACION WHERE ID_HOSPITALIZACION = ?", new String[]{id});
-    }
 
-    public boolean actualizarHospitalizacion(String id, String fechaIngreso, String fechaSalida, String diagnostico) {
+
+    public boolean actualizarHospitalizacion(String id, String idPaciente, String fechaIngreso, String fechaAlta) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
+        values.put("ID_PACIENTE", idPaciente);         // En mayúsculas
         values.put("FECHA_INGRESO", fechaIngreso);
-        values.put("FECHA_SALIDA", fechaSalida);
-        values.put("DIAGNOSTICO", diagnostico);
-        return db.update("HOSPITALIZACION", values, "ID_HOSPITALIZACION = ?", new String[]{id}) > 0;
+        values.put("FECHA_SALIDA", fechaAlta);
+        int filas = db.update("hospitalizacion", values, "ID_HOSPITALIZACION = ?", new String[]{id});
+        return filas > 0;
     }
-
     public boolean eliminarHospitalizacion(String id) {
         SQLiteDatabase db = this.getWritableDatabase();
-        return db.delete("HOSPITALIZACION", "ID_HOSPITALIZACION = ?", new String[]{id}) > 0;
+        int filas = db.delete("hospitalizacion", "ID_HOSPITALIZACION = ?", new String[]{id});
+        return filas > 0;
     }
+    //-------------------------------------- CRUD ASEGURADORA --------------------------------
+    public long insertarAseguradora(String idAseguradora, String nombre) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("ID_ASEGURADORA", idAseguradora);
+        values.put("NOMBRE_ASEGURADORA", nombre);
+        return db.insert("ASEGURADORA", null, values);
+    }
+
+    public Cursor consultarAseguradoras() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM ASEGURADORA", null);
+    }
+
+    public Cursor obtenerAseguradoraPorId(String id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM ASEGURADORA WHERE ID_ASEGURADORA = ?", new String[]{id});
+    }
+
+    public boolean actualizarAseguradora(String idAseguradora, String nuevoNombre) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("NOMBRE_ASEGURADORA", nuevoNombre);
+        return db.update("ASEGURADORA", values, "ID_ASEGURADORA = ?", new String[]{idAseguradora}) > 0;
+    }
+
+    public boolean eliminarAseguradora(String idAseguradora) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.delete("ASEGURADORA", "ID_ASEGURADORA = ?", new String[]{idAseguradora}) > 0;
+    }
+
+
 
 
 
