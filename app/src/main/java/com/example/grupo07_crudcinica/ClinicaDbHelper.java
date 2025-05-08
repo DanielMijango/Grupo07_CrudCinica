@@ -1,6 +1,7 @@
 package com.example.grupo07_crudcinica;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.content.ContentValues;
@@ -15,6 +16,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClinicaDbHelper extends SQLiteOpenHelper {
 
@@ -251,12 +254,9 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
         return id;
     }
 
-    public Cursor obtenerTodosMedicamentos() {
+    public Cursor obtenerTodosLosMedicamentos() {
         SQLiteDatabase db = this.getReadableDatabase();
-        return db.query("MEDICAMENTO",
-                new String[]{"ID_MEDICAMENTO", "NOMBRE_MEDICAMENTO", "FECHA_VENCIMIENTO", "PRECIO_MEDICAMENTO"},
-                null, null, null, null,
-                "NOMBRE_MEDICAMENTO ASC");
+        return db.rawQuery("SELECT * FROM MEDICAMENTO", null);
     }
 
     public Cursor obtenerMedicamentoPorId(String id) {
@@ -292,7 +292,6 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
         return rowsDeleted;
     }
 
-
     public Cursor buscarMedicamentosPorNombre(String nombre) {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.query("MEDICAMENTO",
@@ -303,6 +302,16 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
                 "NOMBRE_MEDICAMENTO ASC");
     }
 
+    public boolean insertarMedicamentoDetalle(String idDetalle, String idMedicamento) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("ID_DETALLE", idDetalle);
+        values.put("ID_MEDICAMENTO", idMedicamento);
+
+        long resultado = db.insert("MEDICAMENTO_DETALLE", null, values);
+        db.close();
+        return resultado != -1;
+    }
 
     public int contarMedicamentos() {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -312,6 +321,8 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
         cursor.close();
         return count;
     }
+
+//
     public boolean agregarMedicamentoADetalle(String idDetalle, String idMedicamento) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -323,51 +334,78 @@ public class ClinicaDbHelper extends SQLiteOpenHelper {
         return result != -1;
     }
 
-    public Cursor obtenerMedicamentosPorDetalle(String idDetalle) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT M.* FROM MEDICAMENTO M " +
-                "INNER JOIN MEDICAMENTO_DETALLE R ON M.ID_MEDICAMENTO = R.ID_MEDICAMENTO " +
-                "WHERE R.ID_DETALLE = ?";
-        return db.rawQuery(query, new String[]{idDetalle});
-    }
 
- //------------------------------------ CRUD DETALLE_FACTURA-----------------------------------
- public long insertarDetalleFactura(String idFactura, double montoDetalle, String formaPago) {
-     SQLiteDatabase db = this.getWritableDatabase();
-     ContentValues values = new ContentValues();
-     values.put("ID_DETALLE", generarId("DET"));
+    //------------------------------------ CRUD DETALLE_FACTURA-----------------------------------
+    public String insertarDetalleFactura(String idFactura, double montoDetalle, String formaPago) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        String idDetalle = generarId("DET");  // Genera el ID con prefijo "DET"
+        values.put("ID_DETALLE", idDetalle);
      values.put("ID_FACTURA", idFactura);
      values.put("MONTO_DETALLE", montoDetalle);
      values.put("FORMA_DE_PAGO", formaPago);
 
-     long id = db.insert("DETALLE_FACTURA", null, values);
+     long resultado = db.insert("DETALLE_FACTURA", null, values);
      db.close();
-     return id;
+     return (resultado != -1) ? idDetalle : null;  // Devolver el ID generado como String
  }
-    public Cursor obtenerTodosDetallesFactura() {
+
+    public Cursor obtenerDetallesConMedicamento() {
         SQLiteDatabase db = this.getReadableDatabase();
-        return db.query("DETALLE_FACTURA",
-                new String[]{"ID_DETALLE", "ID_FACTURA", "MONTO_DETALLE", "FORMA_DE_PAGO"},
-                null, null, null, null, "ID_DETALLE ASC");
+        String query = "SELECT d.ID_DETALLE, d.MONTO_DETALLE, d.FORMA_DE_PAGO, m.NOMBRE_MEDICAMENTO, d.ID_FACTURA " +
+                "FROM DETALLE_FACTURA d " +
+                "JOIN MEDICAMENTO_DETALLE md ON d.ID_DETALLE = md.ID_DETALLE " +
+                "JOIN MEDICAMENTO m ON md.ID_MEDICAMENTO = m.ID_MEDICAMENTO";
+        return db.rawQuery(query, null);
     }
+
     public Cursor obtenerTodosLosDetalles() {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT * FROM DETALLE_FACTURA", null);
     }
-    public int actualizarDetalleFactura(String id, String idFactura, double montoDetalle, String formaPago) {
+
+    public int actualizarDetalleFactura(String idDetalle, double montoDetalle, String formaPago, List<String> nuevosMedicamentos) {
         SQLiteDatabase db = this.getWritableDatabase();
+
+        // Actualizar campos del detalle
         ContentValues values = new ContentValues();
-        values.put("ID_FACTURA", idFactura);
         values.put("MONTO_DETALLE", montoDetalle);
         values.put("FORMA_DE_PAGO", formaPago);
+        int filasActualizadas = db.update("DETALLE_FACTURA", values, "ID_DETALLE = ?", new String[]{idDetalle});
 
-        int rowsAffected = db.update("DETALLE_FACTURA", values, "ID_DETALLE = ?", new String[]{id});
-        db.close();
-        return rowsAffected;
+        // Verificar si el detalle fue actualizado (es decir, si existe)
+        if (filasActualizadas == 0) {
+            Log.e("DB_ERROR", "No existe el ID_DETALLE: " + idDetalle + " en DETALLE_FACTURA.");
+            return 0;
+        }
+
+        // Insertar nuevos medicamentos relacionados
+        for (String idMedicamento : nuevosMedicamentos) {
+            ContentValues rel = new ContentValues();
+            rel.put("ID_DETALLE", idDetalle);
+            rel.put("ID_MEDICAMENTO", idMedicamento);
+
+            try {
+                long result = db.insertOrThrow("MEDICAMENTO_DETALLE", null, rel);
+                Log.d("DB_INSERT", "Medicamento relacionado insertado: " + idMedicamento);
+            } catch (SQLiteConstraintException e) {
+                Log.e("DB_ERROR", "Error al insertar relación: ID_MEDICAMENTO=" + idMedicamento + " ID_DETALLE=" + idDetalle + " -> " + e.getMessage());
+            }
+        }
+
+        return filasActualizadas;
     }
+
+
     public int eliminarDetalleFactura(String id) {
         SQLiteDatabase db = this.getWritableDatabase();
+
+        // Primero eliminar relaciones en MEDICAMENTO_DETALLE
+        db.delete("MEDICAMENTO_DETALLE", "ID_DETALLE = ?", new String[]{id});
+
+        // Luego eliminar de DETALLE_FACTURA
         int rowsDeleted = db.delete("DETALLE_FACTURA", "ID_DETALLE = ?", new String[]{id});
+
         db.close();
         return rowsDeleted;
     }

@@ -17,20 +17,21 @@
             android:hint="ID Factura"
             android:inputType="number" />
 
-        <!-- Medicamento -->
+        <!-- Lista de Medicamentos -->
         <Spinner
-            android:id="@+id/spinnerMedicamento"
+            android:id="@+id/spinnerMedicamentos"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="8dp"/>
+
 
         <!-- Monto del detalle -->
         <EditText
             android:id="@+id/edtMontoDetalle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Monto del Detalle"
-            android:inputType="numberDecimal"
+            android:hint="Cantidad"
+            android:inputType="number"
             android:layout_marginTop="8dp" />
 
         <!-- Forma de Pago -->
