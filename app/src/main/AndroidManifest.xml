@@ -13,6 +13,21 @@
         android:theme="@style/Theme.Grupo07_CrudCinica"
         tools:targetApi="31">
         <activity
+            android:name=".hospitalizacion.ActualizarHospitalizacionActivity"
+            android:exported="false" />
+        <activity
+            android:name=".hospitalizacion.ConsultarHospitalizacionActivity"
+            android:exported="false" />
+        <activity
+            android:name=".hospitalizacion.EliminarHospitalizacionActivity"
+            android:exported="false" />
+        <activity
+            android:name=".hospitalizacion.InsertarHospitalizacionActivity"
+            android:exported="false" />
+        <activity
+            android:name=".hospitalizacion.hospitalizacionMenuActivity"
+            android:exported="false" />
+        <activity
             android:name=".Paciente.EliminarPacienteActivity"
             android:exported="false" />
         <activity
